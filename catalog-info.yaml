@@ -2,12 +2,20 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: backstage
-  description: An example of a Backstage application.
-  # Example for optional annotations
-  # annotations:
-  #   github.com/project-slug: backstage/backstage
-  #   backstage.io/techdocs-ref: dir:.
+  description: POps-Rox Developer Portal — Backstage instance for the Platform Ops organization.
+  annotations:
+    github.com/project-slug: POps-Rox/backstage
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - backstage
+    - developer-portal
+    - platform-ops
+  links:
+    - url: https://github.com/POps-Rox/backstage
+      title: GitHub Repository
+      icon: github
 spec:
   type: website
-  owner: john@example.com
-  lifecycle: experimental
+  owner: platform-ops-team
+  lifecycle: production
+  system: pops-rox-platform
