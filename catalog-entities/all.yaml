@@ -1,0 +1,52 @@
+# POps-Rox Platform Catalog Entities
+# This file defines the core organizational entities for the platform.
+# ✏️ CUSTOMIZE: Update the group members, system description, etc. to match your org.
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: pops-rox-platform
+  description: |
+    Platform Ops (POps-Rox) — an open-source collection of Terraform modules,
+    reference architectures, and platform engineering tools for deploying
+    SCCA-compliant Azure infrastructure.
+  tags:
+    - platform-ops
+    - azure
+    - terraform
+  links:
+    - url: https://github.com/POps-Rox
+      title: GitHub Organization
+      icon: github
+spec:
+  owner: platform-ops-team
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform-ops-team
+  description: |
+    The Platform Operations team responsible for maintaining the POps-Rox
+    platform. ✏️ CUSTOMIZE: Update members and profile to match your team.
+spec:
+  type: team
+  profile:
+    displayName: Platform Ops Team
+  children: []
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: github-org
+  description: The POps-Rox GitHub organization containing all platform repositories.
+  links:
+    - url: https://github.com/POps-Rox
+      title: GitHub Organization
+      icon: github
+spec:
+  type: github-organization
+  owner: platform-ops-team
+  system: pops-rox-platform
