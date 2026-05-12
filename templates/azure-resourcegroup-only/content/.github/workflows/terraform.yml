@@ -37,10 +37,6 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # azurerm provider OIDC wiring. The landing zone deploys into FOUR
-  # subscriptions (hub / identity / operations / workload); the federated
-  # identity for AZURE_CLIENT_ID must hold Contributor + User Access
-  # Administrator on each of them. See docs/azure-deploy-setup.md.
   ARM_USE_OIDC:        'true'
   ARM_CLIENT_ID:       ${{ vars.AZURE_CLIENT_ID }}
   ARM_TENANT_ID:       ${{ vars.AZURE_TENANT_ID }}
@@ -68,11 +64,6 @@ jobs:
         uses: POps-Rox/terraform-gh-actions/terraform-plan@v1.0.0
         with:
           terraform_version: '1.10.0'
-          backend_config: |
-            resource_group_name=${{ vars.TF_STATE_RG }}
-            storage_account_name=${{ vars.TF_STATE_SA }}
-            container_name=${{ vars.TF_STATE_CONTAINER }}
-            key=landing-zones/${{ github.event.repository.name }}-${{ inputs.environment || 'dev' }}.tfstate
 
   apply:
     if: >-
@@ -96,8 +87,3 @@ jobs:
         with:
           terraform_version: '1.10.0'
           auto_approve: 'true'
-          backend_config: |
-            resource_group_name=${{ vars.TF_STATE_RG }}
-            storage_account_name=${{ vars.TF_STATE_SA }}
-            container_name=${{ vars.TF_STATE_CONTAINER }}
-            key=landing-zones/${{ github.event.repository.name }}-${{ inputs.environment || 'prod' }}.tfstate
