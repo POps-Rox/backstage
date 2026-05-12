@@ -1,0 +1,58 @@
+name: terraform
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**']
+  pull_request:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**']
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  ARM_CLIENT_ID:     ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_TENANT_ID:     ${{ secrets.ARM_TENANT_ID }}
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    name: terraform plan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Terraform plan
+        uses: POps-Rox/terraform-gh-actions/terraform-plan@v1.0.0
+        with:
+          terraform_version: '1.10.0'
+          backend_config: |
+            resource_group_name=${{ vars.TF_STATE_RG }}
+            storage_account_name=${{ vars.TF_STATE_SA }}
+            container_name=${{ vars.TF_STATE_CONTAINER }}
+            key=landing-zones/${{ github.event.repository.name }}.tfstate
+
+  apply:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: terraform apply
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Terraform apply
+        uses: POps-Rox/terraform-gh-actions/terraform-apply@v1.0.0
+        with:
+          terraform_version: '1.10.0'
+          backend_config: |
+            resource_group_name=${{ vars.TF_STATE_RG }}
+            storage_account_name=${{ vars.TF_STATE_SA }}
+            container_name=${{ vars.TF_STATE_CONTAINER }}
+            key=landing-zones/${{ github.event.repository.name }}.tfstate

@@ -1,0 +1,147 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: azure-landing-zone
+  title: Azure SCCA Landing Zone (POps-Rox Overlays)
+  description: |
+    Full SCCA-style landing zone scaffold. Wires together the `hubspoke`,
+    `managementhub`, `managementspoke`, and `workloadspoke` POps-Rox terraform
+    overlays at v2.0.0 to produce a multi-subscription enclave with shared
+    networking, centralized management, and an initial workload spoke.
+  tags:
+    - terraform
+    - azure
+    - pops-rox
+    - landing-zone
+    - scca
+spec:
+  owner: platform-ops-team
+  type: infrastructure
+
+  parameters:
+    - title: Enclave identity
+      required:
+        - enclave_name
+        - org_name
+        - environment
+        - location
+      properties:
+        enclave_name:
+          title: Enclave name
+          type: string
+          description: kebab-case enclave name (e.g., scca-dev-east)
+          pattern: '^[a-z][a-z0-9-]{2,29}[a-z0-9]$'
+          ui:autofocus: true
+        org_name:
+          title: Organization prefix
+          type: string
+          default: popsrox
+          pattern: '^[a-z0-9]{2,10}$'
+        environment:
+          title: Deployment environment
+          type: string
+          default: dev
+          enum: [dev, test, prod]
+          enumNames: [Development, Test, Production]
+        location:
+          title: Primary Azure region
+          type: string
+          default: eastus
+          enum:
+            - eastus
+            - eastus2
+            - westus2
+            - westus3
+            - centralus
+            - usgovvirginia
+            - usgovtexas
+            - usgovarizona
+        azure_environment:
+          title: Azure cloud environment
+          type: string
+          default: public
+          enum: [public, usgovernment]
+          enumNames: [Azure Commercial, Azure US Government]
+
+    - title: Management group / subscription wiring
+      required:
+        - parent_management_group_id
+        - hub_subscription_id
+        - identity_subscription_id
+        - operations_subscription_id
+        - workload_subscription_id
+      properties:
+        parent_management_group_id:
+          title: Parent management group ID
+          type: string
+          description: ID (not display name) of the parent management group
+        hub_subscription_id:
+          title: Hub subscription ID
+          type: string
+          description: Subscription hosting the hub network and shared services
+        identity_subscription_id:
+          title: Identity / management hub subscription ID
+          type: string
+        operations_subscription_id:
+          title: Operations / management spoke subscription ID
+          type: string
+        workload_subscription_id:
+          title: Initial workload spoke subscription ID
+          type: string
+
+    - title: Destination
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts: [github.com]
+            allowedOwners: [POps-Rox]
+
+  steps:
+    - id: fetch
+      name: Fetch landing-zone scaffolding
+      action: fetch:template
+      input:
+        url: ./content
+        copyWithoutTemplating:
+          - .github/workflows/*.yml
+        values:
+          enclave_name: ${{ parameters.enclave_name }}
+          org_name: ${{ parameters.org_name }}
+          environment: ${{ parameters.environment }}
+          azure_environment: ${{ parameters.azure_environment }}
+          location: ${{ parameters.location }}
+          parent_management_group_id: ${{ parameters.parent_management_group_id }}
+          hub_subscription_id: ${{ parameters.hub_subscription_id }}
+          identity_subscription_id: ${{ parameters.identity_subscription_id }}
+          operations_subscription_id: ${{ parameters.operations_subscription_id }}
+          workload_subscription_id: ${{ parameters.workload_subscription_id }}
+          destination: ${{ parameters.repoUrl | parseRepoUrl }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: 'SCCA landing zone scaffolded by the POps-Rox terraform overlays v2.0.0'
+        defaultBranch: main
+        repoVisibility: private
+
+    - id: register
+      name: Register in catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+
+  output:
+    links:
+      - title: Source repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

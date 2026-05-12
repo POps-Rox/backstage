@@ -1,0 +1,33 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: ${{ values.enclave_name }}
+  description: 'Azure SCCA landing zone (POps-Rox overlays v2.0.0)'
+  annotations:
+    github.com/project-slug: ${{ values.destination.owner }}/${{ values.destination.repo }}
+  tags:
+    - landing-zone
+    - scca
+    - azure
+    - terraform
+    - pops-rox
+spec:
+  owner: platform-ops-team
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.enclave_name }}-iac
+  description: 'IaC root module for the ${{ values.enclave_name }} enclave'
+  annotations:
+    github.com/project-slug: ${{ values.destination.owner }}/${{ values.destination.repo }}
+  tags:
+    - terraform
+    - landing-zone
+    - pops-rox
+spec:
+  type: infrastructure
+  lifecycle: experimental
+  owner: platform-ops-team
+  system: ${{ values.enclave_name }}
