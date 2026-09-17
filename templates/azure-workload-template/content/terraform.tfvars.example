@@ -1,0 +1,14 @@
+# Example terraform.tfvars for ${{ values.name }}.
+# Copy to terraform.tfvars (gitignored) and adjust as needed.
+
+location           = "${{ values.location }}"
+deploy_environment = "${{ values.environment }}"
+workload_name      = "${{ values.name }}"
+org_name           = "${{ values.org_name }}"
+environment        = "public"
+metadata_host      = "management.azure.com"
+
+add_tags = {
+  CostCenter = "TBD"
+  Owner      = "platform-ops-team"
+}

@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  description: ${{ values.description }}
+  annotations:
+    github.com/project-slug: ${{ values.destination.owner }}/${{ values.destination.repo }}
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - terraform
+    - azure
+    - pops-rox
+    {%- for m in values.modules %}
+    - ${{ m }}
+    {%- endfor %}
+spec:
+  type: infrastructure
+  lifecycle: experimental
+  owner: platform-ops-team
+  system: pops-rox-platform

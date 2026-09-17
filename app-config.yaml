@@ -70,6 +70,20 @@ catalog:
     - type: file
       target: ./catalog-entities/all.yaml
 
+    # Scaffolder templates — POps-Rox terraform overlays (Phase 2b)
+    - type: file
+      target: ./templates/azure-workload-template/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ./templates/azure-resourcegroup-only/template.yaml
+      rules:
+        - allow: [Template]
+    - type: file
+      target: ./templates/azure-landing-zone/template.yaml
+      rules:
+        - allow: [Template]
+
   # ✏️ CUSTOMIZE: Change 'POps-Rox' to your GitHub org name
   # Auto-discovers all repos with a catalog-info.yaml in your org
   providers:

@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  description: 'Azure resource group (POps-Rox overlay v2.0.0)'
+  annotations:
+    github.com/project-slug: ${{ values.destination.owner }}/${{ values.destination.repo }}
+  tags:
+    - terraform
+    - azure
+    - pops-rox
+    - resource-group
+spec:
+  type: infrastructure
+  lifecycle: experimental
+  owner: platform-ops-team
+  system: pops-rox-platform
