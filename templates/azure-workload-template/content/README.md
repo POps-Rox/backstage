@@ -67,17 +67,43 @@ composite actions at `v1.0.0`:
 * `terraform-plan@v1.0.0` runs on every pull request.
 * `terraform-apply@v1.0.0` runs on push to `main`.
 
-Configure the following repository secrets / variables:
+The workflow authenticates to Azure with **GitHub OIDC** (no long-lived
+secrets). It expects the following **GitHub Actions variables** (not
+secrets) — usually set once at the *org* level and optionally overridden
+per GitHub Environment:
 
-| Name | Type | Purpose |
-| ---- | ---- | ------- |
-| `ARM_CLIENT_ID`        | secret | SPN client ID |
-| `ARM_CLIENT_SECRET`    | secret | SPN client secret |
-| `ARM_SUBSCRIPTION_ID`  | secret | Target subscription |
-| `ARM_TENANT_ID`        | secret | Tenant ID |
-| `TF_STATE_RG`          | var    | Remote-state resource group |
-| `TF_STATE_SA`          | var    | Remote-state storage account |
-| `TF_STATE_CONTAINER`   | var    | Remote-state container (e.g. `tfstate`) |
+| Name | Scope | Purpose |
+| ---- | ----- | ------- |
+| `AZURE_CLIENT_ID`        | org var, env override | Federated UAMI client ID |
+| `AZURE_TENANT_ID`        | org var              | Azure AD tenant ID |
+| `AZURE_SUBSCRIPTION_ID`  | org var, env override | Target subscription |
+| `TF_STATE_RG`            | org var              | Remote-state resource group |
+| `TF_STATE_SA`            | org var              | Remote-state storage account |
+| `TF_STATE_CONTAINER`     | org var              | Remote-state container (e.g. `tfstate`) |
+
+See [`backstage/docs/azure-deploy-setup.md`](https://github.com/POps-Rox/backstage/blob/main/docs/azure-deploy-setup.md)
+for the one-time UAMI + federated-credential + RBAC bootstrap.
+
+## Deploy to Azure
+
+Once this repo is scaffolded:
+
+1. Confirm org variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`,
+   `AZURE_SUBSCRIPTION_ID`, `TF_STATE_RG`, `TF_STATE_SA`,
+   `TF_STATE_CONTAINER` are set
+   (see [Azure deploy setup](https://github.com/POps-Rox/backstage/blob/main/docs/azure-deploy-setup.md)).
+2. Open the repo on GitHub → **Actions** → **terraform** →
+   **Run workflow** → pick `environment` (`dev` / `test` / `prod`) and
+   `action = apply` → **Run workflow**.
+3. Or from the CLI:
+   ```bash
+   gh workflow run terraform.yml -f environment=dev -f action=apply
+   ```
+
+Pushes to `main` also trigger `terraform apply` automatically against the
+GitHub Environment named in the job (defaults to `prod`). Configure
+**required reviewers** on the `prod` environment to gate production
+deploys.
 
 ## Owners
 
